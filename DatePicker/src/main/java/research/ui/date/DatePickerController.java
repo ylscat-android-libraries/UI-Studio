@@ -17,7 +17,7 @@ class DatePickerController implements NumberPicker.OnValueChangeListener {
 
     private int[] mMin;
     private int[] mMax;
-    private int[] mTime = new int[5];
+    private int[] mTime;
     private int mMinMatchCount;
     private int mMaxMatchCount;
 
@@ -36,12 +36,24 @@ class DatePickerController implements NumberPicker.OnValueChangeListener {
         mPickerIndex.put(hour, 3);
         mPickerIndex.put(min, 4);
 
-        int[] now = mTime;
-        now[0] = c.get(Calendar.YEAR);
-        now[1] = c.get(Calendar.MONTH) + 1;
-        now[2] = c.get(Calendar.DAY_OF_MONTH);
-        now[3] = c.get(Calendar.HOUR_OF_DAY);
-        now[4] = c.get(Calendar.MINUTE);
+        boolean full = hour != null;
+        int[] now;
+        if(full) {
+            now = new int[5];
+            now[0] = c.get(Calendar.YEAR);
+            now[1] = c.get(Calendar.MONTH) + 1;
+            now[2] = c.get(Calendar.DAY_OF_MONTH);
+            now[3] = c.get(Calendar.HOUR_OF_DAY);
+            now[4] = c.get(Calendar.MINUTE);
+        }
+        else {
+            now = new int[3];
+            now[0] = c.get(Calendar.YEAR);
+            now[1] = c.get(Calendar.MONTH) + 1;
+            now[2] = c.get(Calendar.DAY_OF_MONTH);
+        }
+
+        mTime = now;
 
         year.setMinValue(now[0] - 10);
         year.setMaxValue(now[0] + 10);
@@ -49,20 +61,30 @@ class DatePickerController implements NumberPicker.OnValueChangeListener {
         month.setMaxValue(12);
         day.setMinValue(1);
         day.setMaxValue(c.getActualMaximum(Calendar.DAY_OF_MONTH));
-        hour.setMaxValue(23);
-        min.setMaxValue(59);
+        if(full) {
+            hour.setMaxValue(23);
+            min.setMaxValue(59);
+        }
 
         year.setValue(now[0]);
         month.setValue(now[1]);
         day.setValue(now[2]);
-        hour.setValue(now[3]);
-        min.setValue(now[4]);
+        if(full) {
+            hour.setValue(now[3]);
+            min.setValue(now[4]);
+        }
 
         year.setOnValueChangedListener(this);
         month.setOnValueChangedListener(this);
         day.setOnValueChangedListener(this);
-        hour.setOnValueChangedListener(this);
-        min.setOnValueChangedListener(this);
+        if(full) {
+            hour.setOnValueChangedListener(this);
+            min.setOnValueChangedListener(this);
+        }
+    }
+
+    public DatePickerController(NumberPicker year, NumberPicker month, NumberPicker day) {
+        this(year, month, day, null, null);
     }
 
     public void setLimitation(Calendar min, Calendar max) {
@@ -105,10 +127,14 @@ class DatePickerController implements NumberPicker.OnValueChangeListener {
         mMonth.setMinValue(1);
         mMonth.setMaxValue(12);
         mDay.setMinValue(1);
-        mHour.setMinValue(0);
-        mHour.setMaxValue(23);
-        mMinute.setMinValue(0);
-        mMinute.setMaxValue(59);
+        if(mHour != null) {
+            mHour.setMinValue(0);
+            mHour.setMaxValue(23);
+        }
+        if(mMinute != null) {
+            mMinute.setMinValue(0);
+            mMinute.setMaxValue(59);
+        }
         mMaxMatchCount = 0;
         mMinMatchCount = 0;
         onValueChange(mYear, mTime[0], mYear.getValue());
@@ -125,6 +151,7 @@ class DatePickerController implements NumberPicker.OnValueChangeListener {
         if(mMax != null)
             checkUpperBound(mMax);
 
+        //Adjust max day of month
         if (index < 2) {
             mCalendar.set(mTime[0], mTime[1] - 1, 1);
             int max = mCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
@@ -152,7 +179,8 @@ class DatePickerController implements NumberPicker.OnValueChangeListener {
                     mDay.setMinValue(1);
                     break;
                 case 3: //hour
-                    mHour.setMinValue(0);
+                    if(mHour != null)
+                        mHour.setMinValue(0);
                     break;
                 case 4: //min
                     mMinute.setMinValue(0);
@@ -176,9 +204,11 @@ class DatePickerController implements NumberPicker.OnValueChangeListener {
                         limitMore = true;
                     break;
                 case 3: //hour
-                    mHour.setMinValue(min[3]);
-                    if (index == matched && min[3] == mHour.getValue())
-                        limitMore = true;
+                    if(mHour != null) {
+                        mHour.setMinValue(min[3]);
+                        if (index == matched && min[3] == mHour.getValue())
+                            limitMore = true;
+                    }
                     break;
                 case 4: //min
                     mMinute.setMinValue(min[4]);
@@ -218,7 +248,8 @@ class DatePickerController implements NumberPicker.OnValueChangeListener {
                         mTime[2] = maximum;
                     break;
                 case 3: //hour
-                    mHour.setMaxValue(23);
+                    if(mHour != null)
+                        mHour.setMaxValue(23);
                     break;
                 case 4: //min
                     mMinute.setMaxValue(59);
@@ -242,9 +273,11 @@ class DatePickerController implements NumberPicker.OnValueChangeListener {
                         limitMore = true;
                     break;
                 case 3: //hour
-                    mHour.setMaxValue(max[3]);
-                    if (index == matched && max[3] == mHour.getValue())
-                        limitMore = true;
+                    if(mHour != null) {
+                        mHour.setMaxValue(max[3]);
+                        if (index == matched && max[3] == mHour.getValue())
+                            limitMore = true;
+                    }
                     break;
                 case 4: //min
                     mMinute.setMaxValue(max[4]);
