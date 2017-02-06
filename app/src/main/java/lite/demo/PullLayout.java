@@ -41,6 +41,7 @@ public class PullLayout extends Activity implements lite.widget.pull.PullLayout.
         mPtr = (lite.widget.pull.PullLayout) lv.getParent();
 
         mPtr.setOnRefreshListener(this);
+        mPtr.startLoading(true);
     }
 
     @Override
@@ -48,10 +49,10 @@ public class PullLayout extends Activity implements lite.widget.pull.PullLayout.
         new AsyncTask<Integer, Object, Integer>() {
             @Override
             protected Integer doInBackground(Integer... params) {
-//                try {
-//                    Thread.sleep(1000);
-//                }
-//                catch (InterruptedException ignore) {};
+                try {
+                    Thread.sleep(1000);
+                }
+                catch (InterruptedException ignore) {};
                 int start = params[0];
                 int count = mList.size();
                 if(start > count)

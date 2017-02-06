@@ -112,6 +112,14 @@ public class PullLayout extends ViewGroup {
         mTarget.layout(left, top, left + width - right, top + height - bottom);
         mHeaderView.layout(0, -mHeaderHeight, width, 0);
         mFooterView.layout(0, height, width, height + mFooterHeight);
+        if(changed) {
+            switch (mState) {
+                case STATE_LOADING_HEADER:
+                case STATE_LOADING_FOOTER:
+                    animateScrollY();
+                    break;
+            }
+        }
     }
 
     private void ensureTarget() {
@@ -132,6 +140,10 @@ public class PullLayout extends ViewGroup {
 
         if (!isEnabled()) {
             return false;
+        }
+
+        if (mState == STATE_LOADING_HEADER || mState == STATE_LOADING_FOOTER) {
+            return true;
         }
 
         final int action = ev.getActionMasked();
@@ -159,6 +171,8 @@ public class PullLayout extends ViewGroup {
                     if(mState != STATE_PULLING_HEADER) {
                         mState = STATE_PULLING_HEADER;
                         setupHeader(PULLING);
+                        if(mAnimator.isStarted())
+                            mAnimator.cancel();
                     }
                     mInitialMotionY = y;
                 }
@@ -166,6 +180,8 @@ public class PullLayout extends ViewGroup {
                     if(mState != STATE_PULLING_FOOTER) {
                         mState = STATE_PULLING_FOOTER;
                         setupFooter(PULLING);
+                        if(mAnimator.isStarted())
+                            mAnimator.cancel();
                     }
                     mInitialMotionY = y;
                 }
@@ -262,7 +278,6 @@ public class PullLayout extends ViewGroup {
 
                 animateScrollY();
                 mActivePointerId = INVALID_POINTER;
-                return false;
             }
         }
 
@@ -301,6 +316,15 @@ public class PullLayout extends ViewGroup {
         return mState;
     }
 
+    public void startLoading(boolean notifyListener) {
+        if(notifyListener)
+            notifyPullEvent(true);
+        if(mState != STATE_LOADING_HEADER) {
+            mState = STATE_LOADING_HEADER;
+            setupHeader(LOADING);
+            animateScrollY();
+        }
+    }
 
     public void stopLoading() {
         switch (mState) {
@@ -338,8 +362,13 @@ public class PullLayout extends ViewGroup {
     }
 
     private void setupState() {
-        if(mState == STATE_LOADING_FOOTER || mState == STATE_LOADING_HEADER)
-            return;
+        switch (mState) {
+            case STATE_LOADING_HEADER:
+            case STATE_LOADING_FOOTER:
+            case STATE_NORMAL:
+                return;
+        }
+
         int sy = getScrollY();
         if(mAnimator.isStarted()) {
             mAnimator.cancel();
