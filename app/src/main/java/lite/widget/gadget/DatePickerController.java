@@ -1,4 +1,4 @@
-package research.ui.date;
+package lite.widget.gadget;
 
 import android.widget.NumberPicker;
 
@@ -6,7 +6,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-class DatePickerController implements NumberPicker.OnValueChangeListener {
+public class DatePickerController implements NumberPicker.OnValueChangeListener {
     private Calendar mCalendar;
     private NumberPicker mYear;
     private NumberPicker mMonth;

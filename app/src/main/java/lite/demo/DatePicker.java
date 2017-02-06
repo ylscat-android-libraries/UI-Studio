@@ -1,4 +1,4 @@
-package research.ui.date;
+package lite.demo;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -10,19 +10,22 @@ import android.widget.TextView;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+import lite.widget.R;
+import lite.widget.gadget.DatePickerController;
+
 /**
  * Created at 2016/5/13.
  *
  * @author YinLanShan
  */
-public class Main extends Activity implements CompoundButton.OnCheckedChangeListener {
+public class DatePicker extends Activity implements CompoundButton.OnCheckedChangeListener {
     private DatePickerController mController;
     GregorianCalendar min, max;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+        setContentView(R.layout.date_picker);
 
         NumberPicker year = (NumberPicker) findViewById(R.id.year);
         NumberPicker month = (NumberPicker) findViewById(R.id.month);
